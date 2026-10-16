@@ -1,0 +1,305 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#007a72">
+<title>Salas de reuniones · Ramírez de Arellano</title>
+<style>
+:root{
+  /* Paleta corporativa Quirónsalud: turquesa + rojo de acento */
+  --brand:#007a72; --brand-2:#00a19a; --accent:#e2231a;
+  --bg:#f2f7f7; --card:#fff; --text:#1d2b2a; --muted:#5d6b6a; --line:#d9e5e4;
+  --busy:#e8eeee; --busy-text:#9aa7a6; --sel:#00a19a; --ok:#007a72; --warn:#e2231a;
+  --radius:14px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:var(--bg)}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;color:var(--text);font-size:15px;line-height:1.4;-webkit-font-smoothing:antialiased;padding-bottom:calc(90px + env(safe-area-inset-bottom))}
+button{font:inherit;color:inherit;border:0;background:none;cursor:pointer}
+input,select{font:inherit;color:inherit}
+header{background:linear-gradient(135deg,var(--brand),var(--brand-2));color:#fff;border-bottom:4px solid var(--accent);padding:calc(18px + env(safe-area-inset-top)) 16px 20px}
+header .logo{display:inline-flex;align-items:center;background:#fff;border-radius:10px;padding:6px 10px;margin-bottom:12px}
+header .logo img{height:40px;width:auto;display:block}
+header .kicker{font-size:12px;letter-spacing:.08em;text-transform:uppercase;opacity:.8}
+header h1{font-size:22px;font-weight:700;margin-top:2px}
+header p{font-size:13px;opacity:.85;margin-top:4px}
+.tabs{display:flex;gap:6px;margin-top:14px;background:rgba(255,255,255,.15);border-radius:999px;padding:4px}
+.tabs button{flex:1;padding:8px 0;border-radius:999px;font-weight:600;font-size:14px;color:#fff;opacity:.85}
+.tabs button.on{background:#fff;color:var(--brand);opacity:1}
+.badge{display:inline-block;min-width:18px;padding:0 6px;border-radius:9px;background:var(--accent);color:#fff;font-size:11px;margin-left:4px}
+main{max-width:720px;margin:0 auto;padding:16px}
+h2{font-size:13px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin:18px 0 8px}
+.days{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;scrollbar-width:none}
+.days::-webkit-scrollbar{display:none}
+.day{flex:0 0 auto;width:58px;padding:8px 0;border-radius:12px;background:var(--card);border:1px solid var(--line);text-align:center}
+.day small{display:block;font-size:11px;color:var(--muted);text-transform:uppercase}
+.day b{font-size:18px}
+.day.on{background:var(--brand);border-color:var(--brand);color:#fff}
+.day.on small{color:#c9ecea}
+.day:disabled{opacity:.4;cursor:not-allowed}
+.filters{display:flex;gap:8px;flex-wrap:wrap}
+.chip{padding:7px 12px;border-radius:999px;background:var(--card);border:1px solid var(--line);font-size:13px;font-weight:500}
+.chip.on{background:#e0f3f2;border-color:var(--brand-2);color:var(--brand)}
+.list{display:grid;gap:10px}
+.room{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:14px;display:flex;gap:12px;align-items:center;text-align:left;width:100%}
+.room:active{transform:scale(.99)}
+.room .ico{flex:0 0 44px;height:44px;border-radius:12px;background:#e0f3f2;display:grid;place-items:center;color:var(--brand)}
+.ico svg{width:34px;height:34px}
+.card h3{display:flex;align-items:center;gap:10px}
+.card h3 .ico{flex:0 0 44px;height:44px;border-radius:12px;background:#e0f3f2;display:grid;place-items:center;color:var(--brand)}
+.room .info{flex:1;min-width:0}
+.room .name{font-weight:650}
+.room .meta{font-size:13px;color:var(--muted);margin-top:2px}
+.tags{display:flex;gap:4px;flex-wrap:wrap;margin-top:6px}
+.tag{font-size:11px;padding:2px 7px;border-radius:6px;background:var(--bg);color:var(--muted)}
+.avail{font-size:12px;font-weight:600;white-space:nowrap}
+.avail.g{color:var(--ok)} .avail.o{color:var(--warn)} .avail.r{color:var(--busy-text)}
+.empty{text-align:center;color:var(--muted);padding:32px 16px;background:var(--card);border-radius:var(--radius);border:1px dashed var(--line)}
+/* detail */
+.back{display:inline-flex;align-items:center;gap:6px;color:var(--brand-2);font-weight:600;margin-bottom:10px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:16px}
+.card h3{font-size:19px}
+.slots{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.slot{padding:9px 0;border-radius:9px;border:1px solid var(--line);background:#fff;font-size:13px;font-weight:600;font-variant-numeric:tabular-nums}
+.slot.busy{background:var(--busy);color:var(--busy-text);border-color:transparent;text-decoration:line-through;cursor:not-allowed}
+.slot.past{background:var(--busy);color:var(--busy-text);border-color:transparent;cursor:not-allowed}
+.slot.sel{background:var(--sel);border-color:var(--sel);color:#fff}
+.legend{display:flex;gap:14px;font-size:12px;color:var(--muted);margin-top:10px}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:4px;vertical-align:-1px}
+label.f{display:block;font-size:13px;font-weight:600;margin:14px 0 6px}
+.input{width:100%;padding:11px 12px;border:1px solid var(--line);border-radius:10px;background:#fff}
+.input:focus{outline:2px solid var(--brand-2);outline-offset:-1px}
+.row{display:flex;gap:10px}.row>*{flex:1}
+.hint{font-size:12px;color:var(--muted);margin-top:8px}
+/* bottom bar */
+.bar{position:fixed;left:0;right:0;bottom:0;background:#fff;border-top:1px solid var(--line);padding:12px 16px calc(12px + env(safe-area-inset-bottom));display:flex;gap:12px;align-items:center;z-index:5}
+.bar .sum{flex:1;font-size:13px;color:var(--muted);min-width:0}
+.bar .sum b{display:block;color:var(--text);font-size:15px}
+.btn{padding:13px 20px;border-radius:12px;background:var(--accent);color:#fff;font-weight:650}
+.btn:disabled{background:#b8c4d0;cursor:not-allowed}
+.btn.ghost{background:transparent;color:var(--warn);padding:8px 10px;font-size:13px}
+/* confirm */
+.ok{text-align:center;padding:28px 16px}
+.ok .check{width:68px;height:68px;border-radius:50%;background:#e0f3f2;color:var(--ok);display:grid;place-items:center;font-size:36px;margin:0 auto 12px}
+.ok h3{font-size:21px}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:8px 14px;text-align:left;margin:18px 0;font-size:14px}
+.kv dt{color:var(--muted)} .kv dd{font-weight:600}
+.code{font-family:ui-monospace,Menlo,monospace;letter-spacing:.05em}
+.mine{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.toast{position:fixed;left:50%;bottom:100px;transform:translateX(-50%);background:#16202b;color:#fff;padding:10px 16px;border-radius:10px;font-size:14px;opacity:0;transition:opacity .2s;pointer-events:none;z-index:9}
+.toast.on{opacity:1}
+.demo{font-size:11px;text-align:center;color:var(--muted);margin-top:24px}
+@media (min-width:560px){.slots{grid-template-columns:repeat(6,1fr)}}
+</style>
+</head>
+<body>
+<header>
+  <div class="kicker">Spaces Pro · Edificio Ramírez de Arellano</div>
+  <h1>Reserva de salas de reuniones</h1>
+  <p>Encuentra una sala de reuniones libre y resérvala en segundos.</p>
+  <div class="tabs" role="tablist">
+    <button id="tabFind" class="on" onclick="go('find')">Reservar</button>
+    <button id="tabMine" onclick="go('mine')">Mis reservas<span id="mineCount"></span></button>
+  </div>
+</header>
+<main id="app"></main>
+<div class="bar" id="bar" hidden></div>
+<div class="toast" id="toast"></div>
+
+<script>
+/* ---------- Datos ficticios ---------- */
+/* Salas de reuniones de la capa "Salas de reuniones" (planta 0) en Spaces.
+   id = número final del POI: quironsalud_corra02_poi_L0_sala_reuniones.<id>
+   ⚠ Revisar ids, nombres y aforos contra la tabla de Spaces. */
+const ROOMS = [
+  {id:'11', name:'Sala de reuniones 11', floor:0, cap:6,  desc:'Sala rápida y compacta',          eq:['Equipamiento audiovisual']},
+  {id:'12', name:'Sala de reuniones 12', floor:0, cap:8,  desc:'Espacio polivalente',             eq:['Equipamiento audiovisual']},
+  {id:'13', name:'Sala de reuniones 13', floor:0, cap:8,  desc:'Diseñada para capacitación',      eq:['Equipamiento audiovisual']},
+  {id:'14', name:'Sala de reuniones 14', floor:0, cap:6,  desc:'Sala con bancos',                 eq:['Equipamiento audiovisual']},
+  {id:'15', name:'Sala de reuniones 15', floor:0, cap:12, desc:'Sala orientada a equipos',        eq:['Equipamiento audiovisual']},
+  {id:'16', name:'Sala de reuniones 16', floor:0, cap:6,  desc:'Espacio íntimo y neutro',         eq:['Mobiliario y acondicionamiento']},
+  {id:'17', name:'Sala de reuniones 17', floor:0, cap:8,  desc:'Espacio robusto',                 eq:['Equipamiento audiovisual']},
+  {id:'18', name:'Sala de reuniones 18', floor:0, cap:12, desc:'Espacio diseñado para grupos',    eq:['Equipamiento audiovisual']},
+  {id:'19', name:'Sala de reuniones 19', floor:0, cap:8,  desc:'Sala de reuniones',               eq:['Equipamiento audiovisual']},
+];
+const START=8, END=20, STEP=30; // 08:00–20:00, franjas de 30 min
+const SLOTS=[]; for(let m=START*60;m<END*60;m+=STEP) SLOTS.push(m);
+const DOW=['dom','lun','mar','mié','jue','vie','sáb'];
+const MON=['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+
+/* Icono de sala: mesa vista desde arriba; nº de sillas según aforo */
+function roomIcon(cap){
+  const st='fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"';
+  let t,ch;
+  if(cap<=6){ t='<rect x="9" y="11" width="14" height="10" rx="2"/>';
+    ch=[[12,7],[20,7],[12,25],[20,25],[5,16],[27,16]]; }
+  else if(cap<=8){ t='<rect x="7" y="11" width="18" height="10" rx="2"/>';
+    ch=[[10,7],[16,7],[22,7],[10,25],[16,25],[22,25],[3,16],[29,16]]; }
+  else { t='<rect x="5" y="12" width="22" height="8" rx="4"/>';
+    ch=[[8,8],[13,8],[19,8],[24,8],[8,24],[13,24],[19,24],[24,24],[2,16],[30,16]]; }
+  const c=ch.map(([x,y])=>`<circle cx="${x}" cy="${y}" r="2" fill="currentColor" stroke="none"/>`).join('');
+  return `<svg viewBox="0 0 32 32" ${st} aria-hidden="true">${t}${c}</svg>`;
+}
+/* ---------- Utilidades ---------- */
+const $=s=>document.querySelector(s);
+const hhmm=m=>String(Math.floor(m/60)).padStart(2,'0')+':'+String(m%60).padStart(2,'0');
+const ymd=d=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+const pretty=s=>{const d=new Date(s+'T00:00');return DOW[d.getDay()]+' '+d.getDate()+' '+MON[d.getMonth()]};
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function hash(str){let h=2166136261;for(const c of str){h^=c.charCodeAt(0);h=Math.imul(h,16777619)}return h>>>0}
+// Ocupación simulada estable por sala+día
+function seedBusy(roomId,date){
+  const busy=new Set(); let h=hash(roomId+date); const n=2+h%4;
+  for(let i=0;i<n;i++){h=hash(h+':'+i);const s=h%SLOTS.length,len=1+(h>>5)%4;for(let k=0;k<len&&s+k<SLOTS.length;k++)busy.add(SLOTS[s+k])}
+  return busy;
+}
+const store={get(){try{return JSON.parse(localStorage.getItem('ra_bookings')||'[]')}catch(e){return mem}},
+  set(v){mem=v;try{localStorage.setItem('ra_bookings',JSON.stringify(v))}catch(e){}}};
+let mem=[];
+function busyFor(roomId,date){
+  const b=seedBusy(roomId,date);
+  store.get().filter(x=>x.room===roomId&&x.date===date).forEach(x=>{for(let m=x.from;m<x.to;m+=STEP)b.add(m)});
+  return b;
+}
+function isPast(date,m){const now=new Date();if(date!==ymd(now))return false;return m+STEP<=now.getHours()*60+now.getMinutes()}
+function workdays(n){const out=[];const d=new Date();while(out.length<n){if(d.getDay()!==0&&d.getDay()!==6)out.push(ymd(d));d.setDate(d.getDate()+1)}return out}
+
+/* ---------- Estado ---------- */
+const DAYS=workdays(10);
+const S={view:'find',date:DAYS[0],floor:'all',cap:0,room:null,sel:[],last:null};
+
+function toast(t){const el=$('#toast');el.textContent=t;el.classList.add('on');clearTimeout(el._t);el._t=setTimeout(()=>el.classList.remove('on'),2200)}
+function go(v){S.view=v;if(v!=='detail')S.sel=[];render();window.scrollTo(0,0)}
+
+/* ---------- Vistas ---------- */
+function render(){
+  $('#tabFind').classList.toggle('on',S.view!=='mine');
+  $('#tabMine').classList.toggle('on',S.view==='mine');
+  const upcoming=store.get().filter(b=>b.date>=ymd(new Date()));
+  $('#mineCount').innerHTML=upcoming.length?'<span class="badge">'+upcoming.length+'</span>':'';
+  const bar=$('#bar'); bar.hidden=true;
+  if(S.view==='find') return viewFind();
+  if(S.view==='detail') return viewDetail();
+  if(S.view==='done') return viewDone();
+  if(S.view==='mine') return viewMine();
+}
+
+function viewFind(){
+  const floors=['all',0,1,2,3], caps=[0,6,8,12];
+  let rooms=ROOMS.filter(r=>(S.floor==='all'||r.floor===S.floor)&&r.cap>=S.cap);
+  $('#app').innerHTML=`
+    <h2>Día</h2>
+    <div class="days">${DAYS.map(d=>{const x=new Date(d+'T00:00');return`<button class="day ${d===S.date?'on':''}" onclick="S.date='${d}';render()"><small>${DOW[x.getDay()]}</small><b>${x.getDate()}</b><small>${MON[x.getMonth()]}</small></button>`}).join('')}</div>
+    <h2>Capacidad mínima</h2>
+    <div class="filters">${caps.map(c=>`<button class="chip ${S.cap===c?'on':''}" onclick="S.cap=${c};render()">${c?c+'+ personas':'Cualquiera'}</button>`).join('')}</div>
+    <h2>${rooms.length} salas de reuniones · ${pretty(S.date)}</h2>
+    <div class="list">${rooms.length?rooms.map(r=>{
+      const b=busyFor(r.id,S.date); const free=SLOTS.filter(m=>!b.has(m)&&!isPast(S.date,m)).length;
+      const cls=free>12?'g':free>0?'o':'r'; const txt=free?Math.round(free*STEP/60*10)/10+' h libres':'Completa';
+      return`<button class="room" onclick="S.room='${r.id}';go('detail')">
+        <div class="ico">${roomIcon(r.cap)}</div>
+        <div class="info"><div class="name">${r.name}</div>
+        <div class="meta">${r.floor===0?'Planta baja':'Planta '+r.floor} · ${r.cap} ${r.cap===1?'persona':'personas'}</div>
+        <div class="tags">${r.eq.map(e=>`<span class="tag">${e}</span>`).join('')}</div></div>
+        <span class="avail ${cls}">${txt}</span></button>`}).join(''):'<div class="empty">No hay salas de reuniones con estos filtros.</div>'}</div>
+    <p class="demo">Prototipo de demostración · datos ficticios</p>`;
+}
+
+function viewDetail(){
+  const r=ROOMS.find(x=>x.id===S.room); const b=busyFor(r.id,S.date);
+  $('#app').innerHTML=`
+    <button class="back" onclick="go('find')">‹ Volver a salas de reuniones</button>
+    <div class="card">
+      <h3><span class="ico">${roomIcon(r.cap)}</span>${r.name}</h3>
+      <div class="meta" style="color:var(--muted);margin-top:4px">${r.floor===0?'Planta baja':'Planta '+r.floor} · Hasta ${r.cap} ${r.cap===1?'persona':'personas'}</div>
+      <p style="margin-top:8px">${r.desc}</p>
+      <div class="tags">${r.eq.map(e=>`<span class="tag">${e}</span>`).join('')}</div>
+    </div>
+    <h2>Día</h2>
+    <div class="days">${DAYS.map(d=>{const x=new Date(d+'T00:00');return`<button class="day ${d===S.date?'on':''}" onclick="S.date='${d}';S.sel=[];render()"><small>${DOW[x.getDay()]}</small><b>${x.getDate()}</b><small>${MON[x.getMonth()]}</small></button>`}).join('')}</div>
+    <h2>Franjas · ${pretty(S.date)}</h2>
+    <div class="slots">${SLOTS.map(m=>{
+      const past=isPast(S.date,m), busy=b.has(m), sel=S.sel.includes(m);
+      return`<button class="slot ${past?'past':busy?'busy':sel?'sel':''}" ${past||busy?'disabled':''} onclick="pick(${m})">${hhmm(m)}</button>`}).join('')}</div>
+    <div class="legend"><span><i style="background:#fff;border:1px solid var(--line)"></i>Libre</span><span><i style="background:var(--sel)"></i>Seleccionada</span><span><i style="background:var(--busy)"></i>Ocupada</span></div>
+    <p class="hint">Toca la franja de inicio y la de fin para seleccionar un tramo continuo.</p>
+    <label class="f" for="title">Asunto de la reunión</label>
+    <input class="input" id="title" maxlength="60" placeholder="Ej.: Comité de calidad">
+    <div class="row">
+      <div><label class="f" for="att">Asistentes</label><input class="input" id="att" type="number" min="1" max="${r.cap}" value="${Math.min(2,r.cap)}"></div>
+      <div><label class="f" for="svc">Servicio</label><select class="input" id="svc"><option>Ninguno</option><option>Café y agua</option><option>Soporte técnico</option></select></div>
+    </div>`;
+  updateBar();
+}
+function pick(m){
+  const b=busyFor(S.room,S.date);
+  if(S.sel.length===0||S.sel.length>1&&!S.sel.includes(m)) S.sel=[m];
+  else if(S.sel.length===1&&S.sel[0]===m) S.sel=[];
+  else {
+    const a=Math.min(S.sel[0],m), z=Math.max(S.sel[S.sel.length-1],m), range=[];
+    for(let x=a;x<=z;x+=STEP){if(b.has(x)){toast('Hay franjas ocupadas en medio');return}range.push(x)}
+    if(range.length>8){toast('Máximo 4 horas por reserva');return}
+    S.sel=range;
+  }
+  S.sel.sort((x,y)=>x-y);
+  document.querySelectorAll('.slot').forEach(el=>{const t=el.textContent;const v=+t.slice(0,2)*60+ +t.slice(3);if(!el.disabled)el.classList.toggle('sel',S.sel.includes(v))});
+  updateBar();
+}
+function updateBar(){
+  const bar=$('#bar'); bar.hidden=false;
+  const has=S.sel.length>0;
+  bar.innerHTML=`<div class="sum">${has?`<b>${hhmm(S.sel[0])} – ${hhmm(S.sel[S.sel.length-1]+STEP)}</b>${S.sel.length*STEP} min · ${pretty(S.date)}`:'<b>Elige una franja</b>Sin selección'}</div>
+  <button class="btn" ${has?'':'disabled'} onclick="confirmBooking()">Reservar</button>`;
+}
+function confirmBooking(){
+  const r=ROOMS.find(x=>x.id===S.room);
+  const att=+$('#att').value||1;
+  if(att>r.cap){toast('Supera la capacidad de la sala');return}
+  const bk={id:'RA-'+Math.random().toString(36).slice(2,7).toUpperCase(),room:r.id,date:S.date,from:S.sel[0],to:S.sel[S.sel.length-1]+STEP,
+    title:($('#title').value.trim()||'Reunión'),att,svc:$('#svc').value,created:Date.now()};
+  store.set([...store.get(),bk]); S.last=bk; S.sel=[]; go('done');
+}
+function viewDone(){
+  const b=S.last, r=ROOMS.find(x=>x.id===b.room);
+  $('#app').innerHTML=`<div class="card ok">
+    <div class="check">✓</div><h3>¡Sala de reuniones reservada!</h3>
+    <p style="color:var(--muted);margin-top:4px">Recibirás un recordatorio antes de la reunión.</p>
+    <dl class="kv">
+      <dt>Sala</dt><dd>${r.name}</dd>
+      <dt>Ubicación</dt><dd>Ramírez de Arellano · ${r.floor===0?'Planta baja':'Planta '+r.floor}</dd>
+      <dt>Fecha</dt><dd>${pretty(b.date)}</dd>
+      <dt>Horario</dt><dd>${hhmm(b.from)} – ${hhmm(b.to)}</dd>
+      <dt>Asunto</dt><dd>${esc(b.title)}</dd>
+      <dt>Asistentes</dt><dd>${b.att}</dd>
+      <dt>Código</dt><dd class="code">${b.id}</dd>
+    </dl>
+    <div class="row"><button class="btn" style="background:#e0f3f2;color:var(--brand)" onclick="go('mine')">Mis reservas</button><button class="btn" onclick="go('find')">Nueva reserva</button></div>
+  </div>`;
+}
+function viewMine(){
+  const today=ymd(new Date());
+  const list=store.get().filter(b=>b.date>=today).sort((a,b)=>(a.date+a.from).localeCompare(b.date+b.from)||a.from-b.from);
+  $('#app').innerHTML=`<h2>Próximas reservas</h2>
+    <div class="list">${list.length?list.map(b=>{const r=ROOMS.find(x=>x.id===b.room);return`
+      <div class="room" style="cursor:default"><div class="ico">${roomIcon(r.cap)}</div>
+      <div class="info"><div class="mine"><div class="name">${esc(b.title)}</div></div>
+      <div class="meta">${r.name} · ${r.floor===0?'Planta baja':'Planta '+r.floor}</div>
+      <div class="meta">${pretty(b.date)} · ${hhmm(b.from)}–${hhmm(b.to)} · <span class="code">${b.id}</span></div></div>
+      <button class="btn ghost" onclick="cancelBk('${b.id}')">Cancelar</button></div>`}).join('')
+      :'<div class="empty">Aún no tienes reservas.<br><br><button class="btn" onclick="go(\'find\')">Reservar una sala de reuniones</button></div>'}</div>
+    <p class="demo">Prototipo de demostración · datos ficticios</p>`;
+}
+function cancelBk(id){if(!confirm('¿Cancelar esta reserva?'))return;store.set(store.get().filter(b=>b.id!==id));toast('Reserva cancelada');render()}
+
+/* Enlace directo desde el botón de cada POI: ?sala=15 (o el id completo del POI) */
+(function(){
+  const q=new URLSearchParams(location.search).get('sala');
+  if(!q) return;
+  const id=q.split('.').pop();
+  if(ROOMS.some(r=>r.id===id)){S.room=id;S.view='detail'}
+})();
+render();
+</script>
+</body>
+</html>
